@@ -76,6 +76,6 @@ export class GameMessageC2S_Register extends GameMessageC2S {
 
 /**注册回执 */
 export class GameMessageS2C_Register extends GameMessageS2C {
-    type:GameMessageType.S2C_Register;
+    type:GameMessageType = GameMessageType.S2C_Register;
     //只需告诉客户端成功没有,已经在父类定义了code
 }

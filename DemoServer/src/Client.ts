@@ -24,10 +24,11 @@ export default class Client {
 
     /**客户端发来消息 */
     onMessage(data: WebSocket.Data) {
+        console.log("get message from client",data);
         let msg = JSON.parse(data as string) as GameMessageBase;
 
         if (msg.type == GameMessageType.Hello) {
-            console.log(msg);
+
         }else if (msg.type == GameMessageType.Match) {
             ClientManager.getInstance().match(this);
         }else if (msg.type == GameMessageType.C2S_Put) {
