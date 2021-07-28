@@ -57,6 +57,9 @@ export default class WSClient extends cc.Component {
             } else if (msg.type ==GameMessageType.S2C_Register) {
                 //直接将type作为响应事件函数名
                 EventCenter.postEvent(msg.type.toString(),msg);
+            } else if (msg.type ==GameMessageType.S2C_Login) {
+                //直接将type作为响应事件函数名
+                EventCenter.postEvent(msg.type.toString(),msg);
             }
         }
 

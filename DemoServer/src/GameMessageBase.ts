@@ -62,7 +62,7 @@ export class GameMessageMatchOver extends GameMessageBase {
 
 /**注册请求 */
 export class GameMessageC2S_Register extends GameMessageC2S {
-    type: GameMessageType.C2S_Register;
+    type: GameMessageType = GameMessageType.C2S_Register;
 
     //注意要将作用域写出来,这样才算定义
     constructor(public username: string, public password: string) {
@@ -78,4 +78,24 @@ export class GameMessageC2S_Register extends GameMessageC2S {
 export class GameMessageS2C_Register extends GameMessageS2C {
     type:GameMessageType = GameMessageType.S2C_Register;
     //只需告诉客户端成功没有,已经在父类定义了code
+}
+
+/**登录请求 */
+export class GameMessageC2S_Login extends GameMessageC2S {
+    type: GameMessageType = GameMessageType.C2S_Login;
+
+    //注意要将作用域写出来,这样才算定义
+    constructor(public username: string, public password: string) {
+        super();
+
+        //写了public就相当于加上了如下代码
+        // this.username = username;
+        // this.password = password;
+    }
+}
+
+/**登录回执 */
+export class GameMessageS2C_Login extends GameMessageS2C {
+    type:GameMessageType = GameMessageType.S2C_Login;
+    uid: string;
 }

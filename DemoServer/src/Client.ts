@@ -8,12 +8,14 @@ import { v1 } from 'uuid';
 import WebSocket = require ('ws');
 import ClientManager from './ClientManager';
 import DBManager from './DBManager';
-import GameMessageBase, { GameMessageC2S_Register, GameMessageS2C_Register, GameMessageType } from './GameMessageBase';
+import GameMessageBase, { GameMessageC2S_Login, GameMessageC2S_Register, GameMessageS2C_Login, GameMessageS2C_Register, GameMessageType } from './GameMessageBase';
 
 export default class Client {
     ws: WebSocket;
 
-    pairClient: Client;
+    pairClient: Client; //配对的用户
+
+    uid: number; //当前用户uid
 
     constructor(socket: WebSocket) {
         this.ws = socket;
@@ -62,6 +64,22 @@ export default class Client {
                     });
                 }
             });
+        } else if (msg.type == GameMessageType.C2S_Login) {
+            let login = msg as GameMessageC2S_Login;
+            let password = Md5.hashStr(login.password); //转换为md5
+            //查找相同用户名和密码的文档
+            DBManager.getUserCollection().findOne({username: login.username,password: password},(err, res) => {
+                let callback = new GameMessageS2C_Login();
+                console.log("c2s_login error:",err,"res:",res);
+                if (res) { //用户名和密码都有匹配的用户,输入正确
+                    callback.code = 0;
+                    callback.uid = res.uid;
+                    this.uid = res.uid;
+                } else { //没有匹配用户,输入错误
+                    callback.code = 1
+                }
+                this.send(callback);
+            })
         }
         
     }
