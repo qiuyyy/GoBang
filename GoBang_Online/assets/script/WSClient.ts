@@ -18,10 +18,11 @@ export default class WSClient extends cc.Component {
         return this._instance;
     }
 
-    ws: WebSocket;
+    ws: WebSocket; //保存连接通道
     
     onLoad() {
         WSClient._instance = this;
+        cc.game.addPersistRootNode(this.node);
     }
 
     start() {
@@ -37,9 +38,10 @@ export default class WSClient extends cc.Component {
         //为啥要加ws://? 王八的屁股，规定。
         let ws = new WebSocket("ws://127.0.0.1:8080");
 
-        //客户端和服务器连接上后,发送匹配请求
+        //客户端和服务器连接上后
         ws.onopen = (ev:Event) => {
-            ws.send(JSON.stringify({type:GameMessageType.Match}));
+            //发送匹配请求
+            // ws.send(JSON.stringify({type:GameMessageType.C2S_Match}));
             //抛出连接服务器成功事件
             EventCenter.postEvent(EventDefine.EVENT_NETWORK_CONNECT);
         }

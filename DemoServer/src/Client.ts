@@ -15,7 +15,7 @@ export default class Client {
 
     pairClient: Client; //配对的用户
 
-    uid: number; //当前用户uid
+    uid: string; //当前用户uid
 
     constructor(socket: WebSocket) {
         this.ws = socket;
@@ -31,7 +31,7 @@ export default class Client {
 
         if (msg.type == GameMessageType.Hello) {
 
-        }else if (msg.type == GameMessageType.Match) {
+        }else if (msg.type == GameMessageType.C2S_Match) {
             ClientManager.getInstance().match(this);
         }else if (msg.type == GameMessageType.C2S_Put) {
             //直接向两个客户端转发

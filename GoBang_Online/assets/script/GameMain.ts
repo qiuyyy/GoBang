@@ -128,7 +128,7 @@ export default class GameMain extends cc.Component {
     }
 
     //轮换下棋
-    changePlayer(curPlayerUid: number) {
+    changePlayer(curPlayerUid: string) {
         if (this.selfPlayer.uid == curPlayerUid) {
             this.currentPlayer = this.otherPlayer;
         }else {
@@ -176,7 +176,7 @@ export default class GameMain extends cc.Component {
     }
 
     /**根据Uid获取玩家 */
-    getPlayerByUid(uid: number): GamePlayer {
+    getPlayerByUid(uid: string): GamePlayer {
         if (this.selfPlayer.uid == uid) {
             return this.selfPlayer;
         } else if (uid == this.otherPlayer.uid) {

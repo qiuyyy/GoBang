@@ -7,7 +7,7 @@ import { GameChessType } from "./GameData";
 export default class GamePlayer {
 
     /**玩家id */
-    uid: number;
+    uid: string;
     /**用户名 */
     username: string;
     /**是否是两个玩家中的自己 */

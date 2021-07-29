@@ -24,10 +24,10 @@ export enum GameMessageType {
     C2S_Login,
     /**打招呼 */
     Hello,
-    /**匹配 */
-    Match,
     /**下棋子 */
     C2S_Put,
+    /**客户端向服务端请求匹配 */
+    C2S_Match,
     /**服务端向客户端发送消息--配对成功 */
     S2C_MatchOver,
     /**注册返回 */
@@ -36,14 +36,19 @@ export enum GameMessageType {
     S2C_Login
 }
 
+/**匹配请求消息 */
+export class GameMessageC2S_Match extends GameMessageBase {
+    type: GameMessageType = GameMessageType.C2S_Match;
+}
+
 /**下棋子消息 */
 export class GameMessagePut extends GameMessageBase {
-    type: number;
-    uid: number;
+    type: GameMessageType = GameMessageType.C2S_Put;
+    uid: string;
     i: number;
     j: number;
 
-    constructor(uid: number,i: number,j:number) {
+    constructor(uid: string,i: number,j:number) {
         super();
         this.uid = uid;
         this.i = i;
@@ -55,8 +60,8 @@ export class GameMessagePut extends GameMessageBase {
 export class GameMessageMatchOver extends GameMessageBase {
     type: GameMessageType = GameMessageType.S2C_MatchOver;
     //uid最好是服务器来下发的
-    myUid: number; //自己的uid
-    otherUid: number; //对手的uid
+    myUid: string; //自己的uid
+    otherUid: string; //对手的uid
     myChessType: number; //自己的棋子颜色
 }
 

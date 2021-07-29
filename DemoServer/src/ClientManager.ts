@@ -42,20 +42,23 @@ export default class ClientManager {
             // client.send(msg);
             // pair.send(msg);
 
-            let uid0 = 1000;
-            let uid1 = 1001;
+            // let uid0 = 1000;
+            // let uid1 = 1001;
+            // 不用手动填uid了,直接获取注册时uuid生成的uid
+
+
             //第一份消息
             let msg0 = new GameMessageMatchOver();
-            msg0.myUid= uid0;
+            msg0.myUid= pair.uid;
             msg0.myChessType = 1;
-            msg0.otherUid = uid1;
+            msg0.otherUid = client.uid;
             pair.send(msg0);
 
             //第二份消息
             let msg1 = new GameMessageMatchOver();
-            msg1.myUid= uid1;
+            msg1.myUid= client.uid;
             msg1.myChessType = 2;
-            msg1.otherUid = uid0;
+            msg1.otherUid = pair.uid;
             client.send(msg1);
         }
     }
