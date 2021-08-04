@@ -26,7 +26,7 @@ export class GameChess {
     chessType: GameChessType = GameChessType.None;
     /**是否显示红点 */
     isLastPutChess: boolean = false;
-    //不需要位置么?
+    //不需要位置么? 不需要,棋子是存放在对应位置的数组里
 }
 
 /**棋子类型枚举 */

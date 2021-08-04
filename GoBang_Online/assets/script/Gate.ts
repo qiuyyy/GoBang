@@ -114,6 +114,16 @@ export default class Gate extends cc.Component {
     onLoginCallback(msg: GameMessageS2C_Login) {
         if (msg.code == 0) { //登录成功
             this.lbCallBack.getComponent(cc.Label).string = "登录成功";
+            //检查是否有未完成对局
+            if (msg.sync) { //有未完成棋局
+                //进入main场景,开始游戏
+                cc.director.loadScene("main",function() {
+                    //切换完场景后,将matchOver事件继续抛出
+                    EventCenter.postEvent(EventDefine.EVENT_SYNC, msg);
+                })
+            } else {
+
+            }
         } else {
             this.lbCallBack.getComponent(cc.Label).string = "用户名密码错误";
         }

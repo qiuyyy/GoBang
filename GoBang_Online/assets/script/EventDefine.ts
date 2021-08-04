@@ -9,4 +9,6 @@ export default class EventDefine {
     static EVENT_PUT: string  = "EVENT_PUT";
     /**连接服务器成功 */
     static EVENT_NETWORK_CONNECT: string = "EVENT_NETWORK_CONNECT";
+    /**同步未完成棋局 */
+    static EVENT_SYNC: string = "EVENT_SYNC";
 }

@@ -8,7 +8,9 @@ import { v1 } from 'uuid';
 import WebSocket = require ('ws');
 import ClientManager from './ClientManager';
 import DBManager from './DBManager';
-import GameMessageBase, { GameMessageC2S_Login, GameMessageC2S_Register, GameMessageS2C_Login, GameMessageS2C_Register, GameMessageType } from './GameMessageBase';
+import GameData from './GameData';
+import GameManager from './GameManager';
+import GameMessageBase, { GameMessageC2S_Login, GameMessageC2S_Register, GameMessagePut, GameMessageS2C_Login, GameMessageS2C_Register, GameMessageType } from './GameMessageBase';
 
 export default class Client {
     ws: WebSocket;
@@ -17,11 +19,16 @@ export default class Client {
 
     uid: string; //当前用户uid
 
+    gameData: GameData;
+
     constructor(socket: WebSocket) {
         this.ws = socket;
 
         //需要绑定当前类bing(this),不然onMessage里的this就代表了socket而不是Client对象
         socket.on('message',this.onMessage.bind(this));
+
+        //断线重连
+        socket.on("close",this.onClose.bind(this));
     }
 
     /**客户端发来消息 */
@@ -34,9 +41,7 @@ export default class Client {
         }else if (msg.type == GameMessageType.C2S_Match) {
             ClientManager.getInstance().match(this);
         }else if (msg.type == GameMessageType.C2S_Put) {
-            //直接向两个客户端转发
-            this.send(msg);
-            this.pairClient.send(msg);
+            this.gameData.onPut(msg as GameMessagePut);
         } else if (msg.type == GameMessageType.C2S_Register) {
             //要访问数据库
             let register = msg as GameMessageC2S_Register;
@@ -75,6 +80,11 @@ export default class Client {
                     callback.code = 0;
                     callback.uid = res.uid;
                     this.uid = res.uid;
+
+                    //检查是否有未完成棋局
+                    GameManager.getInstance(GameManager).checkIsInGame(res.uid, callback,this)
+
+
                 } else { //没有匹配用户,输入错误
                     callback.code = 1
                 }
@@ -82,6 +92,15 @@ export default class Client {
             })
         }
         
+    }
+
+    //客户端断开连接时
+    onClose() {
+        ClientManager.getInstance().removeClient(this);
+
+        if (this.gameData) {
+            this.gameData.disconnect(this);
+        }
     }
 
     /**向客户端发送消息 */

@@ -1,3 +1,5 @@
+import { GameChess, GameChessType } from "./GameData";
+
 /**
 *@author  Qiu
 *@description 消息体定义
@@ -47,12 +49,14 @@ export class GameMessagePut extends GameMessageBase {
     uid: string;
     i: number;
     j: number;
+    chessType: number;
 
-    constructor(uid: string,i: number,j:number) {
+    constructor(uid: string,i: number,j:number,chessType: GameChessType) {
         super();
         this.uid = uid;
         this.i = i;
         this.j = j;
+        this.chessType = chessType;
     }
 }
 
@@ -103,4 +107,21 @@ export class GameMessageC2S_Login extends GameMessageC2S {
 export class GameMessageS2C_Login extends GameMessageS2C {
     type:GameMessageType = GameMessageType.S2C_Login;
     uid: string;
+    sync: GameMessageSync;
+}
+
+/**棋局同步信息 */
+export class GameMessageSync {
+    myUid: string;
+    otherUid: string;
+    myChessType: number;
+    tableData: GameChess[][];
+}
+
+//棋局同步信息(GameMessageSync) 和 匹配返回信息(GameMessageMatchOver)可以抽象成一个接口
+//包含这个接口的内容的类就可以写成这个类型
+export interface IGameStart {
+    myUid: string;
+    otherUid: string;
+    myChessType: number;
 }

@@ -3,7 +3,7 @@ import EventCenter from "./EventCenter";
 import EventDefine from "./EventDefine";
 import GameChessUI from "./GameChessUI";
 import GameData, { GameChess, GameChessType } from "./GameData";
-import { GameMessageMatchOver, GameMessagePut, GameMessageType } from "./GameMessageBase";
+import { GameMessageMatchOver, GameMessagePut, GameMessageS2C_Login, GameMessageType, IGameStart } from "./GameMessageBase";
 import GamePlayer from "./GamePlayer";
 import WSClient from "./WSClient";
 
@@ -85,15 +85,45 @@ export default class GameMain extends cc.Component {
 
         EventCenter.registEvent(EventDefine.EVENT_MATCH_OVER,this.onMessageMatchOver,this);
         EventCenter.registEvent(EventDefine.EVENT_PUT,this.onMessagePut,this);
+        EventCenter.registEvent(EventDefine.EVENT_SYNC,this.onSync,this);
+    }
+
+    /**同步棋局 */
+    onSync(msg: GameMessageS2C_Login){
+        this.onMessageMatchOver(msg.sync);
+
+        //根据数据刷新棋盘
+        let sync = msg.sync;
+        this.gameData.tableData = sync.tableData;
+
+        //再刷新棋盘
+        this.refreshTable((chess: GameChess, chessUI: GameChessUI) => {
+            //判断当前是谁的回合
+            if (chess.isLastPutChess) { //是上一回合下的子
+                this.lastPutChess = chessUI;
+                //那当前回合就是另一个颜色
+                if (this.selfPlayer.chessType == chess.chessType) { //上一回合的棋子颜色和自己的棋子颜色相同
+                    this.currentPlayer = this.otherPlayer;
+                } else { //是对方的棋子颜色
+                    this.currentPlayer = this.selfPlayer;
+                }
+                this.updateRound();
+            }
+        });
+
     }
 
     /**刷新棋盘 根据数据刷新界面 */
-    refreshTable() {
+    refreshTable(func?: (chessData: GameChess, chessUI: GameChessUI) => void) {
         for (let i = 0;i <= 14;i ++) {
             for (let j = 0;j <= 14;j ++) {
                 let chess = this.allChess[i][j]; //UI
                 let data = this.gameData.tableData[i][j]; //数据
                 chess.refreshWith(data);
+
+                if (func) {
+                    func(data,chess);
+                }
             }
         }
     }
@@ -101,7 +131,7 @@ export default class GameMain extends cc.Component {
     /**创建玩家 */
     // createPlayer() {
     /**匹配成功后,根据后端信息创建玩家 */
-    onMessageMatchOver(msg: GameMessageMatchOver) {
+    onMessageMatchOver(msg: IGameStart) {
         //创建玩家自己
         let playerSelf = new GamePlayer();
         playerSelf.uid = msg.myUid;
@@ -127,7 +157,7 @@ export default class GameMain extends cc.Component {
         this.updateRound();
     }
 
-    //轮换下棋
+    /**轮换下棋 */
     changePlayer(curPlayerUid: string) {
         if (this.selfPlayer.uid == curPlayerUid) {
             this.currentPlayer = this.otherPlayer;
@@ -146,12 +176,12 @@ export default class GameMain extends cc.Component {
         this.updateRound();
     }
 
-    //刷新回合label
+    /**刷新回合label */
     updateRound() {
         this.lbRound.getComponent(cc.Label).string = this.currentPlayer.username + "的回合"; 
     }
 
-    //点击棋子事件
+    /**点击棋子事件 */
     onClickChess(i: number,j: number) {
         // console.log("====on click chess",i,j);
 
@@ -160,7 +190,7 @@ export default class GameMain extends cc.Component {
         //如果是当前用户下的棋子,就向服务端发送消息
         if (this.currentPlayer.isSelfPlayer) {
             let ws =  WSClient.getInstance();
-            ws.sendMessage(new GameMessagePut(this.selfPlayer.uid,i,j));
+            ws.sendMessage(new GameMessagePut(this.selfPlayer.uid,i,j,this.currentPlayer.chessType));
         }
 
         this.currentPlayer = null; //防止连点
